@@ -74,29 +74,13 @@ public class GameController implements KeyListener {
     }
 
     private void shoot() {
-        List<Target> targets = targetManager.getTargets(); // すべての的を取得
+        List<Target> targets = targetManager.getTargets();
+
         for (Target target : targets) {
-            if (target.getBounds().intersects(aim.getBounds())) {
-                target.hit(); // 照準と的が重なっていたら的を撃つ
-                // スコア加算処理などをここに追加
-                break; // 一度に一つの的しか撃てないのでループを抜ける
+            if (aim.getBounds().intersects(target.getBounds())) {
+                target.hit(); // 的にヒット
+                System.out.println("Hit!"); // コンソールにヒットのログを出力
             }
         }
-
-        // 射撃音を再生する
-        playShootSound();
-
-        // 照準にアニメーションを再生する (実装は別途追加)
-        playShootAnimation();
-    }
-
-    // 射撃音を再生するメソッド
-    private void playShootSound() {
-        // 射撃音の再生処理 (別途音声ファイルの配置場所を指定)
-    }
-
-    // 照準に射撃時のアニメーションを再生するメソッド
-    private void playShootAnimation() {
-        // 照準を中心にアニメーションを再生する処理 (例: 照準が一瞬大きくなるなど)
     }
 }

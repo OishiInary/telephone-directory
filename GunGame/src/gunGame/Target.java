@@ -5,52 +5,56 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 public class Target {
-    private int x;
-    private int y;
-    private boolean visible; // 的の表示状態を管理するフラグ
-    private final int WIDTH = 30; // 的の幅
-    private final int HEIGHT = 30; // 的の高さ
+    private int x, y, size;
+    private boolean visible;
+    private long creationTime;
+    private static final long LIFETIME = 10000; // ターゲットの寿命（10秒）
+    private static final long BLINK_TIME = 2000; // 点滅を始める時間（残り2秒）
 
-    public Target(int x, int y) {
+    public Target(int x, int y, int size) {
         this.x = x;
         this.y = y;
-        this.visible = true; // 初期状態は表示
+        this.size = size;
+        this.visible = true;
+        this.creationTime = System.currentTimeMillis(); // ターゲットが生成された時間を記録
     }
 
-    // 的の位置を取得するためのメソッド
-    public Rectangle getBounds() {
-        return new Rectangle(x, y, WIDTH, HEIGHT);
-    }
-
-    // 的を描画するメソッド
+    // 的を描画
     public void draw(Graphics g) {
-        if (visible) { // 表示状態がtrueのときだけ描画
-            g.setColor(Color.GREEN); // 的の色
-            g.fillRect(x, y, WIDTH, HEIGHT);
-        }
-    }
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - creationTime;
 
-    // setVisibleメソッド
-    public void setVisible(boolean visible) {
-        this.visible = visible; // 表示状態を設定
+        if (elapsedTime >= LIFETIME) {
+            visible = false; // 寿命が尽きたら非表示にする
+        } else if (elapsedTime >= LIFETIME - BLINK_TIME) {
+            // 残り2秒で点滅を開始
+            if ((elapsedTime / 200) % 2 == 0) { // 0.2秒間隔で点滅
+                g.setColor(Color.GREEN);
+                g.fillOval(x - size / 2, y - size / 2, size, size);
+            }
+        } else if (visible) {
+            g.setColor(Color.GREEN);
+            g.fillOval(x - size / 2, y - size / 2, size, size);
+        }
     }
 
     // 的が撃たれたときの処理
     public void hit() {
-        setVisible(false); // 当たったら非表示にする
+        visible = false; // 的を非表示にする
     }
 
-    // 追加: 的の位置を取得するためのメソッド
-    public int getX() {
-        return x;
+    // 的の境界を取得
+    public Rectangle getBounds() {
+        return new Rectangle(x - size / 2, y - size / 2, size, size);
     }
 
-    public int getY() {
-        return y;
-    }
-
-    // 的が表示されているかどうかを取得
     public boolean isVisible() {
         return visible;
+    }
+
+    // 寿命が過ぎているかどうかを確認するメソッド
+    public boolean isExpired() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime - creationTime > LIFETIME; // 生成からの時間が寿命を超えたかどうか
     }
 }
