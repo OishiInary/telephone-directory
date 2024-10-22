@@ -1,33 +1,33 @@
 package gunGame;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JFrame;
 
 public class Main {
     public static void main(String[] args) {
+        int screenWidth = 800;  // 画面の幅を800に設定
+        int screenHeight = 600; // 画面の高さを600に設定
+
         JFrame frame = new JFrame("Gun Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        
-        Aim aim = new Aim(400, 300); // 照準の初期位置を中央に設定
-        TargetManager targetManager = new TargetManager();
+        Aim aim = new Aim(screenWidth / 2, screenHeight / 2, 20);
+        TargetManager targetManager = new TargetManager(screenWidth, screenHeight);
         GameController gameController = new GameController(aim, targetManager);
-        
-        ShootingGamePanel gamePanel = new ShootingGamePanel(aim, targetManager, gameController);
-        frame.add(gamePanel, BorderLayout.CENTER);
-        
-        frame.addKeyListener(gameController); // キーボード操作を登録
-        
+
+        ShootingGamePanel panel = new ShootingGamePanel(aim, targetManager, gameController);
+        frame.add(panel);
+        frame.setSize(screenWidth, screenHeight);
         frame.setVisible(true);
-        
-        // メインループ（ゲームの更新と描画を行う）
+
+        // キーリスナーの追加
+        panel.addKeyListener(gameController);
+        panel.setFocusable(true); // フォーカスを設定
+
+        // ゲームループ
         while (true) {
-            gameController.update(); // 照準の移動更新
-            targetManager.update();  // 的の更新
-            gamePanel.repaint();     // ゲームの描画
+            gameController.update();
+            panel.repaint();
             try {
-                Thread.sleep(16); // フレームレートを約60fpsに維持
+                Thread.sleep(16); // 約60FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

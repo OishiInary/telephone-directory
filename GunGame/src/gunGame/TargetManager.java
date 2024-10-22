@@ -2,43 +2,49 @@ package gunGame;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class TargetManager {
-    private List<Target> targets = new ArrayList<>();
-    private Random random = new Random();
-    private static final int MAX_TARGETS = 3; // 最大ターゲット数
+    private List<Target> targets;
+    private int screenWidth;
+    private int screenHeight;
+    private Random random;
 
-    // ターゲットを更新
-    public void update() {
-        // 寿命が切れたターゲットや撃たれたターゲットを削除
-        Iterator<Target> iterator = targets.iterator();
-        while (iterator.hasNext()) {
-            Target target = iterator.next();
-            if (!target.isVisible() || target.isExpired()) {
-                iterator.remove(); // 寿命が切れたか、ヒットされたターゲットを削除
-            }
-        }
+    public TargetManager(int screenWidth, int screenHeight) {
+        this.targets = new ArrayList<>();
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.random = new Random();
 
-        // ターゲットの数が少ない場合、新たに生成
-        if (targets.size() < MAX_TARGETS) {
-            int x = random.nextInt(800);  // ウィンドウの幅に合わせたランダムなX位置
-            int y = random.nextInt(600);  // ウィンドウの高さに合わせたランダムなY位置
-            int size = 40 + random.nextInt(20); // ターゲットのサイズ
-            targets.add(new Target(x, y, size));
+        // 初期的の生成
+        for (int i = 0; i < 5; i++) {
+            addRandomTarget();
         }
     }
 
-    // すべてのターゲットを描画
+    // ランダムな位置に的を生成するメソッド
+    public void addRandomTarget() {
+        int size = 30;
+
+        // 画面の幅や高さが的のサイズより小さい場合は生成しない
+        if (screenWidth <= size * 2 || screenHeight <= size * 2) {
+            throw new IllegalArgumentException("画面サイズが的の生成に必要なスペースより小さいです。");
+        }
+
+        // 的が画面端に出現しないように位置を調整
+        int x = random.nextInt(screenWidth - size * 2) + size;
+        int y = random.nextInt(screenHeight - size * 2) + size;
+        targets.add(new Target(x, y, size, size));
+    }
+
+    // すべての的を描画するメソッド
     public void drawTargets(Graphics g) {
         for (Target target : targets) {
             target.draw(g);
         }
     }
 
-    // すべての的を取得
     public List<Target> getTargets() {
         return targets;
     }
